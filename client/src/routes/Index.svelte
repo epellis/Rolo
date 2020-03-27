@@ -1,7 +1,10 @@
 <script>
-  // export let params;
-  // export let user;
+
 </script>
+
+<svelte:head>
+  <title>Rolo</title>
+</svelte:head>
 
 <section class="hero is-primary">
   <div class="hero-body">

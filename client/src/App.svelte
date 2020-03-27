@@ -1,56 +1,39 @@
 <script>
-  import router from "page";
   import { userStore } from "./store.js";
+  import { Router, Link, Route } from "svelte-routing";
   import Nav from "./components/Nav.svelte";
   import Foot from "./components/Foot.svelte";
   import Index from "./routes/Index.svelte";
-  import User from "./routes/User.svelte";
   import Home from "./routes/Home.svelte";
-  import NotFound from "./routes/NotFound.svelte";
   import Login from "./routes/Login.svelte";
   import Signup from "./routes/Signup.svelte";
 
-  let page;
-  let params;
   let user;
   userStore.subscribe(newUser => {
     user = newUser;
   });
 
-  router("/", () => {
-    page = Index;
-  });
-  router("/home", () => {
-    if (!user) {
-      router.redirect("/");
-    }
-    page = Home;
-  });
-  router(
-    "/user/:id",
-    (ctx, next) => {
-      params = ctx.params();
-      next();
-    },
-    () => (page = User)
-  );
-  router("/login", () => (page = Login));
-  router("/logout", () => {
-    userStore.logOut();
-    page = Index;
-  });
-  router("/signup", () => (page = Signup));
-  router("/*", () => (page = NotFound));
-
-  router.start();
+  export let url = "";
 </script>
 
 <svelte:head>
   <title>Rolo</title>
 </svelte:head>
 
-<Nav {user} />
-<main>
-  <svelte:component this={page} />
-</main>
-<Foot />
+<Nav {user} {url} />
+<Router {url}>
+  <div>
+    <Route path="/">
+      <Index />
+    </Route>
+    <Route path="/home">
+      <Home />
+    </Route>
+    <Route path="/login">
+      <Login />
+    </Route>
+    <Route path="/signup">
+      <Signup />
+    </Route>
+  </div>
+</Router>

@@ -1,7 +1,6 @@
 <script>
   import { post } from "../utils.js";
   import { userStore } from "../store.js";
-  import router from "page";
 
   let email = "";
   let password = "";
@@ -11,7 +10,7 @@
     console.log("Response", response);
     if (response.success) {
       userStore.logIn(response);
-      router.redirect("/");
+      // router.redirect("/");
     }
   }
 </script>

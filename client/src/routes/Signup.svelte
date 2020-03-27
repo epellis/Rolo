@@ -1,7 +1,7 @@
 <script>
   import { post } from "../utils.js";
   import { userStore } from "../store.js";
-  import router from "page";
+  //   import router from "page";
 
   let username = "";
   let email = "";
@@ -11,13 +11,13 @@
     const response = await post("auth/signup", { email, password });
     console.log("Response", response);
     if (response.success) {
-      router.redirect("/login");
+      //   router.redirect("/login");
     }
   }
 </script>
 
 <svelte:head>
-  <title>Sign In</title>
+  <title>Sign Up</title>
 </svelte:head>
 
 <div class="container">
