@@ -24,10 +24,11 @@
 <Router {url}>
   <div>
     <Route path="/">
-      <Index />
-    </Route>
-    <Route path="/home">
-      <Home />
+      {#if !user.isLoggedIn}
+        <Index />
+      {:else}
+        <Home />
+      {/if}
     </Route>
     <Route path="/login">
       <Login />

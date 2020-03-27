@@ -11,7 +11,6 @@
     <Router {url}>
       <a class="navbar-item" href="/">Rolo</a>
       {#if user.isLoggedIn}
-        <a class="navbar-item" href="/home">Home</a>
         <a class="navbar-item" href="/logout">Logout</a>
       {:else}
         <a class="navbar-item" href="/login">Login</a>

@@ -1,7 +1,7 @@
 <script>
   import { post } from "../utils.js";
   import { userStore } from "../store.js";
-  //   import router from "page";
+  import { navigate } from "svelte-routing";
 
   let username = "";
   let email = "";
@@ -11,7 +11,7 @@
     const response = await post("auth/signup", { email, password });
     console.log("Response", response);
     if (response.success) {
-      //   router.redirect("/login");
+      navigate("/login");
     }
   }
 </script>
