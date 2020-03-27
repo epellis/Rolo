@@ -6,15 +6,15 @@
   import User from "./routes/User.svelte";
   import Home from "./routes/Home.svelte";
   import NotFound from "./routes/NotFound.svelte";
+  import Login from "./routes/Login.svelte";
 
   let page;
   let params;
-  let user = { username: "bobby" };
+  let user;
 
   router("/", () => {
     page = Index;
   });
-  //   router("/about", () => (page = About));
   router("/home", () => {
     if (!user) {
       router.redirect("/");
@@ -29,6 +29,9 @@
     },
     () => (page = User)
   );
+  router("/login", () => (page = Login));
+  router("/logout", () => (page = Login));
+  router("/signup", () => (page = Login));
   router("/*", () => (page = NotFound));
 
   router.start();

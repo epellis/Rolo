@@ -1,5 +1,6 @@
 <script>
-
+  // export let params;
+  // export let user;
 </script>
 
 <section class="hero is-primary">
