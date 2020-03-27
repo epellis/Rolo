@@ -1,3 +1,7 @@
+<script>
+
+</script>
+
 <section class="hero is-primary">
   <div class="hero-body">
     <h1 class="title">Welcome to Rolo</h1>

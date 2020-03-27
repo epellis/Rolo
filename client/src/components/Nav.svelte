@@ -1,5 +1,5 @@
 <script>
-  let user;
+  export let user;
 </script>
 
 <nav class="navbar" role="navigation">

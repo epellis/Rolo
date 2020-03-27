@@ -4,13 +4,16 @@
   import Foot from "./components/Foot.svelte";
   import Index from "./routes/Index.svelte";
   import User from "./routes/User.svelte";
+  import Home from "./routes/Home.svelte";
   import NotFound from "./routes/NotFound.svelte";
 
   let page;
   let params;
-  let user = { me: "ned" };
+  let user = { username: "bobby" };
 
-  router("/", () => (page = Index));
+  router("/", () => {
+    page = Index;
+  });
   //   router("/about", () => (page = About));
   router("/home", () => {
     if (!user) {
@@ -37,6 +40,6 @@
 
 <Nav {user} />
 <main>
-  <svelte:component this={page} {params} />
+  <svelte:component this={page} {params} {user} />
 </main>
 <Foot />
