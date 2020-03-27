@@ -1,5 +1,6 @@
 <script>
   import { post } from "../utils.js";
+  import { userSession } from "../store.js";
   import router from "page";
 
   let email = "";
@@ -8,7 +9,8 @@
   async function submit(event) {
     const response = await post("auth/login", { email, password });
     console.log("Response", response);
-    if (response.status) {
+    if (response.success) {
+      userSession.set(response);
       router.redirect("/");
     }
   }
@@ -22,7 +24,7 @@
   <div class="columns is-centered">
     <form class="box" on:submit|preventDefault={submit}>
       <div class="field">
-        <label for="" class="label">Username</label>
+        <label for="" class="label">Email</label>
         <input type="email" class="input" bind:value={email} />
       </div>
       <div class="field">

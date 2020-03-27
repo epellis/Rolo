@@ -1,5 +1,6 @@
 <script>
   import router from "page";
+  import { userSession } from "./store.js";
   import Nav from "./components/Nav.svelte";
   import Foot from "./components/Foot.svelte";
   import Index from "./routes/Index.svelte";
@@ -11,6 +12,9 @@
   let page;
   let params;
   let user;
+  userSession.subscribe(newSession => {
+    user = newSession;
+  });
 
   router("/", () => {
     page = Index;
@@ -30,7 +34,10 @@
     () => (page = User)
   );
   router("/login", () => (page = Login));
-  router("/logout", () => (page = Login));
+  router("/logout", () => {
+    userSession.set(null);
+    page = Index;
+  });
   router("/signup", () => (page = Login));
   router("/*", () => (page = NotFound));
 
@@ -43,6 +50,6 @@
 
 <Nav {user} />
 <main>
-  <svelte:component this={page} {params} {user} />
+  <svelte:component this={page} />
 </main>
 <Foot />
