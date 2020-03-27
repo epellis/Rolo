@@ -8,6 +8,7 @@
   import Home from "./routes/Home.svelte";
   import NotFound from "./routes/NotFound.svelte";
   import Login from "./routes/Login.svelte";
+  import Signup from "./routes/Signup.svelte";
 
   let page;
   let params;
@@ -38,7 +39,7 @@
     userStore.logOut();
     page = Index;
   });
-  router("/signup", () => (page = Login));
+  router("/signup", () => (page = Signup));
   router("/*", () => (page = NotFound));
 
   router.start();
