@@ -1,6 +1,6 @@
 <script>
   import { post } from "../utils.js";
-  import { userSession } from "../store.js";
+  import { userStore } from "../store.js";
   import router from "page";
 
   let email = "";
@@ -10,7 +10,7 @@
     const response = await post("auth/login", { email, password });
     console.log("Response", response);
     if (response.success) {
-      userSession.set(response);
+      userStore.logIn(response);
       router.redirect("/");
     }
   }

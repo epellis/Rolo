@@ -1,9 +1,9 @@
 <script>
-  import { userSession } from "../store.js";
+  import { userStore } from "../store.js";
 
   let user;
-  userSession.subscribe(newSession => {
-    user = newSession;
+  userStore.subscribe(newUser => {
+    user = newUser;
   });
 </script>
 

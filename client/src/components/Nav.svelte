@@ -6,8 +6,7 @@
 <nav class="navbar" role="navigation">
   <div class="navbar-brand">
     <a class="navbar-item" href="/">Rolo</a>
-    <a class="navbar-item" href="/about">About</a>
-    {#if user}
+    {#if user.isLoggedIn}
       <a class="navbar-item" href="/home">Home</a>
       <a class="navbar-item" href="/logout">Logout</a>
     {:else}
