@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-contrib/gzip"
@@ -13,11 +14,19 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
-type userModel struct {
+type User struct {
 	gorm.Model
 	Username string
 	Email    string
 	Password string
+	Posts    []Post
+}
+
+type Post struct {
+	gorm.Model
+	URL    string
+	Notes  string
+	UserID int
 }
 
 // Server stores all state and associated handlers
@@ -38,7 +47,7 @@ func (s *Server) handleLogin() func(*gin.Context) {
 			return
 		}
 
-		var user userModel
+		var user User
 		if s.db.First(&user, "email = ?", json.Email).RecordNotFound() {
 			c.JSON(http.StatusOK, gin.H{"success": false})
 			return
@@ -48,7 +57,7 @@ func (s *Server) handleLogin() func(*gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"success": true, "email": json.Email})
+		c.JSON(http.StatusOK, gin.H{"success": true, "userid": user.ID, "email": user.Email, "username": user.Username})
 	}
 }
 
@@ -70,7 +79,25 @@ func (s *Server) handleSignup() func(*gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		s.db.Create(&userModel{Username: json.Username, Email: json.Email, Password: string(hashedPassword)})
+		s.db.Create(&User{Username: json.Username, Email: json.Email, Password: string(hashedPassword)})
+
+		c.JSON(http.StatusOK, gin.H{"success": true})
+	}
+}
+
+func (s *Server) handleNewPost() func(*gin.Context) {
+	type post struct {
+		URL    string `json:"url"`
+		Notes  string `json:"notes"`
+		UserID int    `json:"userid"`
+	}
+	return func(c *gin.Context) {
+		var json post
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		log.Println("Creating new post:", json)
 
 		c.JSON(http.StatusOK, gin.H{"success": true})
 	}
@@ -90,11 +117,12 @@ func Default() (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Gorm Open Issue: %v", err)
 	}
-	s.db.AutoMigrate(&userModel{})
+	s.db.AutoMigrate(&User{}, &Post{})
 
 	s.router.Use(gzip.Gzip(gzip.DefaultCompression))
 	s.router.Use(static.Serve("/", static.LocalFile("./client/public", true)))
 	s.router.POST("/auth/signup", s.handleSignup())
 	s.router.POST("/auth/login", s.handleLogin())
+	s.router.POST("/posts/create", s.handleNewPost())
 	return s, nil
 }
