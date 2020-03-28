@@ -1,12 +1,15 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/epellis/rolo/server"
 )
 
 func main() {
-	s := server.Default()
-	fmt.Println("Finished with message:", s.Run())
+	s, err := server.Default()
+	if err != nil {
+		log.Fatalln("Error setting up server:", err)
+	}
+	log.Fatalln("Finished with message:", s.Run())
 }
