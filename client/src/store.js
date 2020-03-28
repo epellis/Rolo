@@ -1,18 +1,39 @@
 import { writable } from 'svelte/store';
 
-function createUserStore() {
-    const defaultUser = { isLoggedIn: false }
+class UserStore {
+    static defaultUser() {
+        return { isLoggedIn: false };
+    }
 
-    const { subscribe, set, update } = writable(defaultUser);
+    constructor() {
+        let storedUserData;
+        try {
+            storedUserData = JSON.parse(localStorage.getItem("userData"));
+            console.log("Loading User:", storedUserData);
+        } catch {
+            storedUserData = UserStore.defaultUser();
+        }
+        const { subscribe, set, update } = writable(storedUserData);
+        this.subscribe = subscribe
+        this.set = set
+        this.update = update
+    }
 
-    return {
-        subscribe,
-        logIn: (userData) => {
-            userData.isLoggedIn = true;
-            set(userData);
-        },
-        logOut: () => set(defaultUser)
-    };
+    subscribe() {
+        return this.subscribe;
+    }
+
+    logIn(userData) {
+        userData.isLoggedIn = true;
+        localStorage.setItem("userData", JSON.stringify(userData));
+        this.set(userData)
+    }
+
+    logOut() {
+        console.log("Logging Out");
+        localStorage.setItem("userData", JSON.stringify(UserStore.defaultUser()));
+        this.set(UserStore.defaultUser());
+    }
 }
 
-export const userStore = createUserStore();
+export const userStore = new UserStore();

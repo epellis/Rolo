@@ -20,7 +20,7 @@
   <title>Rolo</title>
 </svelte:head>
 
-<Nav {user} {url} />
+<Nav {userStore} {url} />
 <Router {url}>
   <div>
     <Route path="/">
