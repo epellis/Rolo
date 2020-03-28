@@ -8,10 +8,11 @@ class UserStore {
     constructor() {
         let storedUserData;
         try {
-            storedUserData = JSON.parse(localStorage.getItem("userData"));
+            storedUserData = JSON.parse(localStorage.getItem("userData") || "");
             console.log("Loading User:", storedUserData);
         } catch {
             storedUserData = UserStore.defaultUser();
+            console.log("Loading Default User:", storedUserData);
         }
         const { subscribe, set, update } = writable(storedUserData);
         this.subscribe = subscribe
