@@ -3,7 +3,10 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"time"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
@@ -128,9 +131,68 @@ func Default() (*Server, error) {
 
 	s.router.Use(gzip.Gzip(gzip.DefaultCompression))
 
+	identityKey := "id"
+	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
+		Key:         []byte(os.Getenv("SECRET_KEY")),
+		Timeout:     time.Hour,
+		MaxRefresh:  time.Hour,
+		IdentityKey: identityKey,
+		PayloadFunc: func(data interface{}) jwt.MapClaims {
+			if v, ok := data.(*User); ok {
+				return jwt.MapClaims{
+					identityKey: v.Username,
+				}
+			}
+			return jwt.MapClaims{}
+		},
+		IdentityHandler: func(c *gin.Context) interface{} {
+			claims := jwt.ExtractClaims(c)
+			return &User{
+				Username: claims[identityKey].(string),
+			}
+		},
+		Authenticator: func(c *gin.Context) (interface{}, error) {
+			type login struct {
+				Username string `form:"username" json:"username" binding:"required"`
+				Password string `form:"password" json:"password" binding:"required"`
+			}
+			var loginVals login
+			if err := c.ShouldBind(&loginVals); err != nil {
+				return "", jwt.ErrMissingLoginValues
+			}
+			userID := loginVals.Username
+			password := loginVals.Password
+
+			if (userID == "admin" && password == "admin") || (userID == "user" && password == "password") {
+				return &User{
+					Username: "User",
+					Email:    "Email",
+				}, nil
+			}
+			return nil, jwt.ErrFailedAuthentication
+		},
+		Authorizator: func(data interface{}, c *gin.Context) bool {
+			if v, ok := data.(*User); ok && v.Username == "admin" {
+				return true
+			}
+			return false
+		},
+		Unauthorized: func(c *gin.Context, code int, message string) {
+			c.JSON(code, gin.H{
+				"code":    code,
+				"message": message,
+			})
+		},
+	})
+
 	s.router.Use(static.Serve("/", static.LocalFile("./client/public", true)))
 	s.router.POST("/auth/signup", s.handleSignup())
-	s.router.POST("/auth/login", s.handleLogin())
-	s.router.POST("/posts/create", s.handleNewPost())
+	// s.router.POST("/auth/login", s.handleLogin())
+	s.router.POST("/auth/login", authMiddleware.LoginHandler)
+	auth := s.router.Group("/auth")
+	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
+	auth.Use(authMiddleware.MiddlewareFunc())
+	// s.router.POST("/create", s.handleNewPost())
+	// s.router.NoRoute()  - TODO
 	return s, nil
 }
