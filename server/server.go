@@ -2,12 +2,12 @@ package server
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -39,7 +39,11 @@ func (s *Server) handleLogin() func(*gin.Context) {
 		}
 
 		var user userModel
-		if err := s.db.First(&user, "email = ? AND password = ?", json.Email, json.Password).Error; err != nil {
+		if s.db.First(&user, "email = ?", json.Email).RecordNotFound() {
+			c.JSON(http.StatusOK, gin.H{"success": false})
+			return
+		}
+		if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(json.Password)) != nil {
 			c.JSON(http.StatusOK, gin.H{"success": false})
 			return
 		}
@@ -61,8 +65,12 @@ func (s *Server) handleSignup() func(*gin.Context) {
 			return
 		}
 
-		log.Println("Username:", json.Username)
-		s.db.Create(&userModel{Username: json.Username, Email: json.Email, Password: json.Password})
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(json.Password), bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		s.db.Create(&userModel{Username: json.Username, Email: json.Email, Password: string(hashedPassword)})
 
 		c.JSON(http.StatusOK, gin.H{"success": true})
 	}
