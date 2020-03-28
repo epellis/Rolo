@@ -8,7 +8,8 @@
   let password = "";
 
   async function submit(event) {
-    const response = await post("auth/signup", { email, password });
+    console.log("Sending Username:", username);
+    const response = await post("auth/signup", { username, email, password });
     console.log("Response", response);
     if (response.success) {
       navigate("/login");
