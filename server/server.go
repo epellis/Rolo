@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gin-contrib/gzip"
@@ -97,7 +96,15 @@ func (s *Server) handleNewPost() func(*gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		log.Println("Creating new post:", json)
+
+		// Check if UserID exists in database
+		var user User
+		if s.db.Find(&user, json.UserID).RecordNotFound() {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("Create Post Failed")})
+			return
+		}
+
+		s.db.Create(&Post{URL: json.URL, Notes: json.Notes, UserID: json.UserID})
 
 		c.JSON(http.StatusOK, gin.H{"success": true})
 	}
@@ -120,6 +127,7 @@ func Default() (*Server, error) {
 	s.db.AutoMigrate(&User{}, &Post{})
 
 	s.router.Use(gzip.Gzip(gzip.DefaultCompression))
+
 	s.router.Use(static.Serve("/", static.LocalFile("./client/public", true)))
 	s.router.POST("/auth/signup", s.handleSignup())
 	s.router.POST("/auth/login", s.handleLogin())

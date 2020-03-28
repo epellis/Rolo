@@ -38,3 +38,4 @@
     </Route>
   </div>
 </Router>
+<Foot />

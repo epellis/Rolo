@@ -16,6 +16,6 @@
 </section>
 <section class="section">
   <div class="container">
-    <CreatePost />
+    <CreatePost {userStore} />
   </div>
 </section>
